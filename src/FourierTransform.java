@@ -1,4 +1,4 @@
-import org.ojalgo.matrix.*;
+import org.jblas.*;
 /**
  * Created by Zell on 11/13/15.
  */
@@ -24,22 +24,21 @@ public class FourierTransform {
             }
         }
 
-        Matrix R = new Matrix(real);
-        Matrix I = new Matrix(imagine);
+        DoubleMatrix R = new DoubleMatrix(real);
+        DoubleMatrix I = new DoubleMatrix(imagine);
 
         //Create Matrix X which is the input signal
-        Matrix X = new Matrix(input,1);
-        //(X.transpose()).print(1,3);
+        DoubleMatrix X = new DoubleMatrix(input);
 
         //Compute Matrix Y which is the Fourier Transform
-        Matrix subY1 = R.times(X.transpose());
-        subY1 = subY1.arrayTimes(subY1);
+        DoubleMatrix subY1 = R.mmul(X);
+        subY1 = subY1.mul(subY1);
 
-        Matrix subY2 = I.times(X.transpose());
-        subY2 = subY2.arrayTimes(subY2);
+        DoubleMatrix subY2 = I.mmul(X);
+        subY2 = subY2.mul(subY2);
 
-        Matrix Y = subY1.plus(subY2);
-        double[] output = Y.getColumnPackedCopy();
+        DoubleMatrix Y = subY1.add(subY2);
+        double[] output = Y.toArray();
         for(int i = 0; i < output.length; i++){
             output[i] = Math.sqrt(output[i]);
         }
@@ -68,20 +67,20 @@ public class FourierTransform {
             }
         }
 
-        Matrix R = new Matrix(real);
-        Matrix I = new Matrix(imagine);
+        DoubleMatrix R = new DoubleMatrix(real);
+        DoubleMatrix I = new DoubleMatrix(imagine);
 
-        Matrix X = new Matrix(array,1);
+        DoubleMatrix X = new DoubleMatrix(array);
         //(X.transpose()).print(1,3);
 
-        Matrix subY1 = R.times(X.transpose());
-        subY1 = subY1.arrayTimes(subY1);
+        DoubleMatrix subY1 = R.mmul(X);
+        subY1 = subY1.mul(subY1);
 
-        Matrix subY2 = I.times(X.transpose());
-        subY2 = subY2.arrayTimes(subY2);
+        DoubleMatrix subY2 = I.mmul(X);
+        subY2 = subY2.mul(subY2);
 
-        Matrix Y = subY1.plus(subY2);
-        double[] output = Y.getColumnPackedCopy();
+        DoubleMatrix Y = subY1.add(subY2);
+        double[] output = Y.toArray();
         for(int i = 0; i < output.length; i++){
             output[i] = Math.sqrt(output[i]);
         }

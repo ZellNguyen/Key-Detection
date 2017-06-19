@@ -40,8 +40,9 @@ public class ChordDetection extends CepstrumPitchDetect{
     }
 
     public static void main (String args[]){
+        long startTime = System.currentTimeMillis();
         try{
-            WavFile wavFile = WavFile.openWavFile(new File("sample5.wav"));
+            WavFile wavFile = WavFile.openWavFile(new File("test.wav"));
 
             // Create a buffer of 256 frames
             int frames = 256;
@@ -52,7 +53,7 @@ public class ChordDetection extends CepstrumPitchDetect{
             Note[] notes = obj.chordDetect(wavFile, frames);
 
             for(Note note: notes){
-                System.out.println(note.percentage);
+                System.out.println(note.name + " - " + note.percentage);
             }
 
             System.out.println(wavFile.getNumFrames());
@@ -63,5 +64,8 @@ public class ChordDetection extends CepstrumPitchDetect{
         }catch(Exception e){
             e.printStackTrace();
         }
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println("Runtime: " +  totalTime);
     }
 }

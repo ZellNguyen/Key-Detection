@@ -1,4 +1,5 @@
-import Jama.Matrix;
+
+import org.jblas.DoubleMatrix;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,26 +45,31 @@ public class CepstrumPitchDetect extends Cepstrum{
 
 
             //Analyse frames*4 at the same time
-            for (int k = 0; k + 3 < temp_buffer.length; k++) {
+            for (int k = 0; k + 1 < temp_buffer.length; k++) {
+                long start = System.currentTimeMillis();
                 //merge 4 temp_buffer into 1 buffer
-                double[] buffer = MergeArrays.merge(temp_buffer[k], temp_buffer[k + 1], temp_buffer[k + 2], temp_buffer[k + 3]);
+                double[] buffer = MergeArrays.merge(temp_buffer[k], temp_buffer[k + 1]);
                 CepstrumPitchDetect obj = new CepstrumPitchDetect();
                 //buffer = obj.hamming(buffer);
 
                 /***Cepstrum process***/
+                /*** !!! IMPROVE PERFORMANCE MAGNITUDE FT AND INVERSE FOURIER !!! ***/
+                double[] frequency = obj.magnitudeFT(buffer, frames * 2);
 
-                double[] frequency = obj.magnitudeFT(buffer, frames * 4);
                 frequency = obj.hamming(frequency);
                 double[] logFrequency = obj.logFourier(frequency);
-                double[] quefrency = obj.inverseFourier(logFrequency, frames * 4);
-                Matrix C = new Matrix(quefrency, 1);
-                double f = obj.getFrequency(quefrency, (int) wavFile.getSampleRate());
+                double[] quefrency = obj.inverseFourier(logFrequency, frames * 2);
 
+                double f = obj.getFrequency(quefrency, (int) wavFile.getSampleRate());
+                long end = System.currentTimeMillis();
                 /***End Cepstrum process***/
 
                 /*** Get the equal note ***/
                 Note note = obj.isEqual(f);
                 noteList.add(note);
+
+                long total = end - start;
+                System.out.println("Runtime: " + total + " - " + f);
             }
 
         }catch (Exception e){
@@ -75,11 +81,11 @@ public class CepstrumPitchDetect extends Cepstrum{
 
     public static void main (String args[]){
         try{
-            WavFile wavFile = WavFile.openWavFile(new File("sample4.wav"));
+            WavFile wavFile = WavFile.openWavFile(new File("sample7.wav"));
 
             // Create a buffer of 256 frames
-            int frames = 256;
-
+            int frames = 512;
+            long start = System.currentTimeMillis();
             //Start pitch detection process
             CepstrumPitchDetect obj = new CepstrumPitchDetect();
             obj.pitchDetect(wavFile, frames);
@@ -88,7 +94,9 @@ public class CepstrumPitchDetect extends Cepstrum{
 
             // Close the wavFile
             wavFile.close();
-
+            long end = System.currentTimeMillis();
+            long total = end - start;
+            System.out.println("Total time: " + total);
         }catch(Exception e){
             e.printStackTrace();
         }
